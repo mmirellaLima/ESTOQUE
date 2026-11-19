@@ -1,0 +1,24 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-estoque
+    # hostname fixo: o RabbitMQ guarda os dados pelo nome do nó,
+    # então isso mantém filas e mensagens duráveis entre reinicializações
+    hostname: rabbitmq-estoque
+    ports:
+      - "5672:5672"     # AMQP (usado pela API e pelos workers)
+      - "15672:15672"   # Painel de gerenciamento: http://localhost:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:
